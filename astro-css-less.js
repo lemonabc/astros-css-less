@@ -11,10 +11,6 @@ module.exports = new astro.Middleware({
     fileType: ['css'],
     modType: ['page']
 }, function(asset, next) {
-    if (!asset.data) {
-        next(asset);
-        return
-    }
     let project = asset.project;
     let prjCfg = astro.getProject(project);
     // 分析JS模块的依赖
@@ -44,7 +40,7 @@ module.exports = new astro.Middleware({
             }
         });
         // Web模块 + 页面 LESS
-        asset.data = webComCode + asset.data;
+        asset.data = webComCode + (asset.data||'');
 
         // 处理引用
         processImport(asset, null, null, function(error) {
