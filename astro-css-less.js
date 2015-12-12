@@ -70,7 +70,6 @@ function processImport(asset, imported, errorCode, callback) {
     errorCode = errorCode || '';
 
     let project = asset.project,
-        cfg = astro.getProject(project),
         lessCode = asset.data;
 
     var imports = [];
