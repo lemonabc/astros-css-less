@@ -46,7 +46,7 @@ module.exports = new astro.Middleware({
         processImport(asset, null, null, function(error) {
             asset.less = asset.data;
             lessParser.render(asset.data, {
-                compress: prjCfg.compressCss
+                compress: prjCfg.compressCss || (prjCfg.compressCss !== false && astro.evn =='release')
             }, function(err, output) {
                 if (err) {
                     var line = 1;
@@ -70,6 +70,7 @@ function processImport(asset, imported, errorCode, callback) {
     errorCode = errorCode || '';
 
     let project = asset.project,
+        cfg = astro.getProject(project),
         lessCode = asset.data;
 
     var imports = [];
