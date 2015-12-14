@@ -52,7 +52,7 @@ module.exports = new astro.Middleware({
                     var line = 1;
                     asset.data = errorTxt + error + '\n/* ' + JSON.stringify(err) +
                         ' */\n\n input is :\n' +
-                        asset.data.replace(/(.*)\n?/ig, function(a, b, c) {
+                        asset.data.replace(/([^\n]*)\n?/ig, function(a, b, c) {
                             return line++ + '  ' + b + '\n';
                         });
                 } else {
