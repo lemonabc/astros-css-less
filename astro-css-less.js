@@ -28,40 +28,63 @@ module.exports = new astro.Middleware({
             })
         });
     }
-    // 批量读取Web模块LESS
-    let reader = astro.Asset.getContents(components);
-    reader.then(function(assets) {
-        var errorTxt = '';
+
+    let jsLibs;
+    if (asset.jsLibs && asset.jsLibs.length) {
+        jsLibs = (asset.jsLibs[1]||[]).map(function(wc) {
+            return new astro.Asset({
+                ancestor: asset,
+                project: project,
+                modType: 'jsCom',
+                name: wc,
+                fileType: 'css'
+            })
+        });
+    }
+    var errorTxt = '';
+    astro.Asset.getContents(jsLibs, function(assets){
         assets.forEach(function(ast) {
             if (ast.data) {
-                webComCode += '/* ' + ast.filePath + ' */\n' + ast.data + '\n';
+                webComCode += '/* css-less -> ' + ast.filePath + ' */\n' + ast.data + '\n';
             } else {
-                errorTxt += '/* ' + ast.filePath + ' */ is miss or empty\n'
+                errorTxt += '/* css-less -> '+ ast.info +'\n\t' + ast.filePath + '  is miss or empty\n */\n'
             }
         });
-        // Web模块 + 页面 LESS
-        asset.data = webComCode + (asset.data||'');
 
-        // 处理引用
-        processImport(asset, null, null, function(error) {
-            asset.less = asset.data;
-            lessParser.render(asset.data, {
-                compress: prjCfg.compressCss || (prjCfg.compressCss !== false && astro.evn =='release')
-            }, function(err, output) {
-                if (err) {
-                    var line = 1;
-                    asset.data = errorTxt + error + '\n/* ' + JSON.stringify(err) +
-                        ' */\n\n input is :\n' +
-                        asset.data.replace(/([^\n]*)\n?/ig, function(a, b, c) {
-                            return line++ + '  ' + b + '\n';
-                        });
+        astro.Asset.getContents(components, function(assets){
+
+            assets.forEach(function(ast) {
+                if (ast.data) {
+                    webComCode += '/* css-less -> ' + ast.filePath + ' */\n' + ast.data + '\n';
                 } else {
-                    asset.data = errorTxt + error + output.css;
+                    errorTxt += '/* css-less -> ' + ast.info +' '+ ast.filePath + '  is miss or empty */\n'
                 }
-                next(asset);
             });
+            // Web模块 + 页面 LESS
+            asset.data = webComCode + (asset.data||'');
+
+            // 处理引用
+            processImport(asset, null, null, function(error) {
+                asset.less = asset.data;
+                lessParser.render(asset.data, {
+                    compress: prjCfg.compressCss
+                }, function(err, output) {
+                    if (err) {
+                        var line = 1;
+                        asset.data = errorTxt + error + '\n/* css-less -> ' + JSON.stringify(err) +
+                            ' */\n\n input is :\n' +
+                            asset.data.replace(/(.*)\n?/ig, function(a, b, c) {
+                                return line++ + '  ' + b + '\n';
+                            });
+                    } else {
+                        asset.data = errorTxt + error + output.css;
+                    }
+                    next(asset);
+                });
+            });
+
         });
-    });
+    })
 });
 
 // 处理文件中的Import
@@ -76,7 +99,7 @@ function processImport(asset, imported, errorCode, callback) {
     var imports = [];
     lessCode = lessCode.replace(reg_import, function(importstr, path) {
         if (imported[path]) {
-            return '/* file:' + path + ' has been imported */\n'
+            return '/* css-less -> file:' + path + ' has been imported */\n'
         }
         imported[path] = true;
         imports.push(new astro.Asset({
@@ -86,16 +109,16 @@ function processImport(asset, imported, errorCode, callback) {
             name: path,
             fileType: 'css'
         }));
-        return '/* ' + path + ' imported first */';
+        return '/* css-less -> ' + path + ' imported first */';
     });
     var importsCode = '';
 
     astro.Asset.getContents(imports).then(function() {
         imports.forEach(function(asset) {
             if (asset.data) {
-                importsCode += '/* ' + asset.name + ' */\n' + asset.data + '\n';
+                importsCode += '/* css-less -> ' + asset.name + ' */\n' + asset.data + '\n';
             } else {
-                errorCode += '/* file:' + asset.name + ' is miss or empty */\n'
+                errorCode += '/* css-less -> file:' + ast.info +' '+ asset.name + ' is miss or empty */\n'
             }
         });
 
