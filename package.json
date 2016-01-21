@@ -1,7 +1,6 @@
 {
   "name": "astros-css-less",
-  "version": "0.0.7",
-  "_version": "0.0.5",
+  "version": "0.0.8",
   "description": "",
   "main": "astro-css-less.js",
   "dependencies": {

@@ -118,7 +118,7 @@ function processImport(asset, imported, errorCode, callback) {
             if (asset.data) {
                 importsCode += '/* css-less -> ' + asset.name + ' */\n' + asset.data + '\n';
             } else {
-                errorCode += '/* css-less -> file:' + ast.info +' '+ asset.name + ' is miss or empty */\n'
+                errorCode += '/* css-less -> file:' + asset.info +' '+ asset.name + ' is miss or empty */\n'
             }
         });
 
