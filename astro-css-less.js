@@ -111,7 +111,7 @@ function processImport(asset, imported, errorCode, callback) {
     });
     var importsCode = '';
 
-    astro.Asset.getContents(imports)||[].then(function() {
+    astro.Asset.getContents(imports||[]).then(function() {
         imports.forEach(function(asset) {
             if (asset.data) {
                 importsCode += '/* css-less -> ' + asset.name + ' */\n' + asset.data + '\n';
