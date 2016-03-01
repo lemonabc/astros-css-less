@@ -42,7 +42,7 @@ module.exports = new astro.Middleware({
         });
     }
     var errorTxt = '';
-    astro.Asset.getContents(jsLibs, function(assets){
+    astro.Asset.getContents(jsLibs||[], function(assets){
         assets.forEach(function(ast) {
             if (ast.data) {
                 webComCode += '/* css-less -> ' + ast.filePath + ' */\n' + ast.data + '\n';
@@ -50,9 +50,7 @@ module.exports = new astro.Middleware({
                 errorTxt += '/* css-less -> '+ ast.info +'\n\t' + ast.filePath + '  is miss or empty\n */\n'
             }
         });
-
-        astro.Asset.getContents(components, function(assets){
-
+        astro.Asset.getContents(components||[], function(assets){
             assets.forEach(function(ast) {
                 if (ast.data) {
                     webComCode += '/* css-less -> ' + ast.filePath + ' */\n' + ast.data + '\n';
@@ -113,7 +111,7 @@ function processImport(asset, imported, errorCode, callback) {
     });
     var importsCode = '';
 
-    astro.Asset.getContents(imports).then(function() {
+    astro.Asset.getContents(imports)||[].then(function() {
         imports.forEach(function(asset) {
             if (asset.data) {
                 importsCode += '/* css-less -> ' + asset.name + ' */\n' + asset.data + '\n';
