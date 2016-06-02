@@ -13,6 +13,7 @@ module.exports = new astro.Middleware({
 }, function(asset, next) {
     let project = asset.project;
     let prjCfg = astro.getProject(project);
+    let self = this;
     // 分析JS模块的依赖
 
     let webComCode = '';
@@ -46,8 +47,8 @@ module.exports = new astro.Middleware({
         assets.forEach(function(ast) {
             if (ast.data) {
                 webComCode += '/* css-less -> ' + ast.filePath + ' */\n' + ast.data + '\n';
-            } else {
-                errorTxt += '/* css-less -> '+ ast.info +'\n\t' + ast.filePath + '  is miss or empty\n */\n'
+            }else {
+                // errorTxt += '/* css-less -> '+ ast.info +'\n\t' + ast.filePath + '  is miss or empty\n */\n'
             }
         });
         astro.Asset.getContents(components||[], function(assets){
@@ -55,7 +56,7 @@ module.exports = new astro.Middleware({
                 if (ast.data) {
                     webComCode += '/* css-less -> ' + ast.filePath + ' */\n' + ast.data + '\n';
                 } else {
-                    errorTxt += '/* css-less -> ' + ast.info +' '+ ast.filePath + '  is miss or empty */\n'
+                    // errorTxt += '/* css-less -> ' + ast.info +' '+ ast.filePath + '  is miss or empty */\n'
                 }
             });
             // Web模块 + 页面 LESS
@@ -65,7 +66,7 @@ module.exports = new astro.Middleware({
             processImport(asset, null, null, function(error) {
                 asset.less = asset.data;
                 lessParser.render(asset.data, {
-                    compress: prjCfg.compressCss
+                    compress: prjCfg.compressCss || self.config.compress != false
                 }, function(err, output) {
                     if (err) {
                         var line = 1;
@@ -116,7 +117,7 @@ function processImport(asset, imported, errorCode, callback) {
             if (asset.data) {
                 importsCode += '/* css-less -> ' + asset.name + ' */\n' + asset.data + '\n';
             } else {
-                errorCode += '/* css-less -> file:' + asset.info +' '+ asset.name + ' is miss or empty */\n'
+                // errorCode += '/* css-less -> file:' + asset.info +' '+ asset.name + ' is miss or empty */\n'
             }
         });
 
