@@ -1,4 +1,4 @@
-'use strict';
+'use strict'; 
 
 var nodeFS = require('fs');
 var nodePath = require('path');
